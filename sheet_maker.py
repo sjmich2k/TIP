@@ -1,5 +1,10 @@
 
 class SheetMaker:
+    """
+    Fill out an empty score whenever there are sounds (gesture detected) in the performance.
+    Provides real-time visual feedback of the score.
+    """
+
     def __init__(self, pygame, sprite_width, sprite_height):
         self.pygame = pygame
 

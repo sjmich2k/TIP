@@ -169,7 +169,7 @@ while success:
         if zoom_strength[0] == "ZOUT":
             motion_freq[5] += 3
     if zoom_strength[1] < ZOOM_THRESHOLD:
-        # no zooms, check motion
+        # No zooms, check motion
         if swipe_strength[1] > SWIPE_THRESHOLD:
             if swipe_strength[0] == "RIGHT":
                 motion_freq[0] += 3
@@ -179,7 +179,7 @@ while success:
                 motion_freq[2] += 3
             if swipe_strength[0] == "DOWN":
                 motion_freq[3] += 3
-        # no motion, check for types
+        # No motion, check for types
         if swipe_strength[1] < 0.0001:
             if typing == "TYPER":
                 type_freq[0] += 1
@@ -197,7 +197,7 @@ while success:
     if count % delta_frame == 0:
         sound_played = False
 
-        # check if output is in cooldown
+        # Check if output is in cooldown
         if cooldown > 0:
             cooldown -= DELTA_TIME
 
@@ -211,13 +211,13 @@ while success:
                 cooldown = SCREENSHOT_COOLDOWN
 
             else:
-                # no screenshots, check for motion (swipe & zoom)
+                # No screenshots, check for motion (swipe & zoom)
                 arg_max = np.argmax(motion_freq)
 
-                # frequency is over 1/4 of the window size
+                # Frequency is over 1/4 of the window size
                 if motion_freq[arg_max] > int(delta_frame / 4):
 
-                    # last output was also 'UP' - SCROLL UP
+                    # Last output was also 'UP' - SCROLL UP
                     if arg_max == 2 and last_swipe == 'UP':
                         print('SCROLL UP')
                         sound_played = play_sound('W')
@@ -225,7 +225,7 @@ while success:
                             ser_scroll.write('W'.encode(encoding="utf-8"))
                         last_swipe = 'UP'
 
-                    # last output was also 'DOWN' - SCROLL DOWN
+                    # Last output was also 'DOWN' - SCROLL DOWN
                     if arg_max == 3 and last_swipe == 'DOWN':
                         print('SCROLL DOWN')
                         sound_played = play_sound('S')
@@ -233,7 +233,7 @@ while success:
                             ser_scroll.write('S'.encode(encoding="utf-8"))
                         last_swipe = 'DOWN'
 
-                    # different motion output from last output
+                    # Different motion output from last output
                     if not (arg_max == 2 and last_swipe == 'UP') and not (arg_max == 3 and last_swipe == 'DOWN'):
                         print(motion_types[arg_max])
                         sound_played = play_sound(motion_types[arg_max])
@@ -255,11 +255,11 @@ while success:
 
                     cooldown = MOTION_COOLDOWN
 
-                # no motion, check for types
+                # No motion, check for types
                 if motion_freq[arg_max] < 1:
                     arg_max = np.argmax(type_freq)
 
-                    # is typing
+                    # Is typing
                     if type_freq[arg_max] > 2:
                         print(type_types[arg_max])
                         sound_played = play_sound(type_types[arg_max])
@@ -267,7 +267,7 @@ while success:
                             ser_type.write(type_types[arg_max].encode(encoding="utf-8"))
                         last_type = True
 
-                    # stopped typing
+                    # Stopped typing
                     if type_freq[arg_max] <= 2 and last_type is True:
                         print(type_types[2])
                         sound_played = play_sound(type_types[2])
@@ -276,7 +276,7 @@ while success:
                     if type_freq[arg_max] <= 2:
                         last_type = False
 
-        # reset frequencies
+        # Reset frequencies
         type_freq = np.array([0, 0, 0])
 
         if not sound_played:

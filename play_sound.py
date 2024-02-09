@@ -23,6 +23,13 @@ sheet = SheetMaker(pygame, 100, 100)
 
 
 def play_sound(action):
+    """
+    Plays the sound associated with the given gesture, also trigger score (sheet) maker.
+
+    :param action:  detected gesture
+    :return:        always return true
+    """
+
     if action == "R":
         sheet.add_sr()
         right.play()

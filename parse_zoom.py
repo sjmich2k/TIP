@@ -3,6 +3,14 @@ import numpy as np
 
 
 def parse_zoom(window, filter_x, filter_y):
+    """
+    Find the average dot product of optical flow & radial field to get zoom strength.
+
+    :param window:      a queue of 2D optical flow vector fields
+    :param filter_x:    x component of the radial field
+    :param filter_y:    y component of the radial field
+    :return:            zoom in/out strength
+    """
 
     n = window.qsize()
     dot_products = []

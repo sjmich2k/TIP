@@ -4,9 +4,10 @@ import numpy as np
 
 def parse_swipes(window):
     """
+    Determine which axis has the most variance of optical flow over a window.
 
-    @param window:  a python queue containing
-    @return:
+    @param window:  a queue of [ average horizontal flow, average vertical flow ]
+    @return:        swipe direction with its strength
     """
 
     n = window.qsize()
@@ -31,43 +32,29 @@ def parse_swipes(window):
             motion_neg_y[i] = abs(motion_y)
 
     # Calculate variances
-    motion_var_px = np.var(motion_pos_x)
-    motion_var_nx = np.var(motion_neg_x)
-    motion_var_py = np.var(motion_pos_y)
-    motion_var_ny = np.var(motion_neg_y)
-
-    p_px = np.histogram(motion_pos_x, bins=256, range=(0, 255))[0] / float(len(motion_pos_x))
-    p_nx = np.histogram(motion_neg_x, bins=256, range=(0, 255))[0] / float(len(motion_neg_x))
-    p_py = np.histogram(motion_pos_y, bins=256, range=(0, 255))[0] / float(len(motion_pos_y))
-    p_ny = np.histogram(motion_neg_y, bins=256, range=(0, 255))[0] / float(len(motion_neg_y))
-
-    entropy_px = -np.sum(p_px * np.log2(p_px + 1e-6))
-    entropy_nx = -np.sum(p_nx * np.log2(p_nx + 1e-6))
-    entropy_py = -np.sum(p_py * np.log2(p_py + 1e-6))
-    entropy_ny = -np.sum(p_ny * np.log2(p_ny + 1e-6))
+    motion_var_px = 2 * np.var(motion_pos_x)
+    motion_var_nx = 2 * np.var(motion_neg_x)
+    motion_var_py = 2 * np.var(motion_pos_y)
+    motion_var_ny = 2 * np.var(motion_neg_y)
 
     # [ right, left, up, down ]
-    ego_motion = np.array([
-        (motion_var_px + entropy_px) / 2,
-        (motion_var_nx + entropy_nx) / 2,
-        (motion_var_py + entropy_py) / 2,
-        (motion_var_ny + entropy_ny) / 2
+    dir_strength = np.array([
+        motion_var_px,
+        motion_var_nx,
+        motion_var_py,
+        motion_var_ny
     ])
-    # ego_motion = np.array([px, nx, py, ny, psy, pny])
-    max_index = np.argmax(ego_motion)
+    max_index = np.argmax(dir_strength)
 
-    if abs(ego_motion[max_index]) > 0.1:
+    # Return the direction with the greatest variation
+    if abs(dir_strength[max_index]) > 0.1:
         if max_index == 0:
-            return ["RIGHT", ego_motion[max_index]]
+            return ["RIGHT", dir_strength[max_index]]
         if max_index == 1:
-            return ["LEFT", ego_motion[max_index]]
+            return ["LEFT", dir_strength[max_index]]
         if max_index == 2:
-            return ["UP", ego_motion[max_index]]
+            return ["UP", dir_strength[max_index]]
         if max_index == 3:
-            return ["DOWN", ego_motion[max_index]]
-        # if max_index == 4:
-        #     return "scroll up - " + str(ego_motion[max_index])
-        # if max_index == 5:
-        #     return "scroll down - " + str(ego_motion[max_index])
+            return ["DOWN", dir_strength[max_index]]
 
     return ["NONE", 0]
